@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FileShare Pro - Inspired File Sharing Experience</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Font (Poppins) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Animate.css for subtle animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      color: #343a40;
+    }
+    /* Navbar */
+    .navbar {
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+    /* Hero Section */
+    .hero {
+      position: relative;
+      background: url('https://source.unsplash.com/random/1600x400?technology') no-repeat center center;
+      background-size: cover;
+      padding: 120px 0;
+      color: #fff;
+      text-align: center;
+      overflow: hidden;
+    }
+    /* Particles container */
+    #particles-js {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    /* Geometric shapes */
+    .geometric-shape {
+      position: absolute;
+      z-index: 0.5;
+      opacity: 0.7;
+    }
+    .shape-triangle {
+      top: 10%;
+      left: 5%;
+      width: 0;
+      height: 0;
+      border-left: 50px solid transparent;
+      border-right: 50px solid transparent;
+      border-bottom: 100px solid rgba(138,43,226,0.5);
+    }
+    .shape-circle {
+      bottom: 10%;
+      right: 5%;
+      width: 80px;
+      height: 80px;
+      background: rgba(138,43,226,0.5);
+      border-radius: 50%;
+    }
+    /* Content over particles and shapes */
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      margin: 0;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      margin: 20px 0 0;
+    }
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      transition: transform 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card-header {
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      background: #343a40;
+      color: #fff;
+    }
+    /* Custom Buttons */
+    .btn-custom {
+      background: #ffc107;
+      color: #343a40;
+      border: none;
+      transition: background 0.3s;
+    }
+    .btn-custom:hover {
+      background: #e0a800;
+    }
+    /* Footer */
+    .footer {
+      background: #343a40;
+      color: #ccc;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 40px;
+    }
+    .footer a {
+      color: #ffc107;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand animate__animated animate__fadeInDown" href="{{ url_for('index') }}">FileShare Pro</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+              aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarContent">
+        <ul class="navbar-nav">
+          {% if session.get('logged_in') %}
+          <li class="nav-item">
+            <a class="nav-link animate__animated animate__fadeInDown" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link animate__animated animate__fadeInDown" href="{{ url_for('login') }}">Login</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Dynamic Particles, Geometric Shapes and Violet Accents -->
+  <section class="hero animate__animated animate__fadeIn">
+    <!-- Particles container -->
+    <div id="particles-js"></div>
+    <!-- Geometric Shapes -->
+    <div class="geometric-shape shape-triangle"></div>
+    <div class="geometric-shape shape-circle"></div>
+    <!-- Hero Content -->
+    <div class="container hero-content">
+      <h1>Welcome to FileShare Pro</h1>
+      <p>Experience a New Level of File Sharing</p>
+    </div>
+  </section>
+
+  <div class="container mt-5">
+    <!-- Search Bar -->
+    <div class="mb-4">
+      <form method="GET" action="{{ url_for('index') }}">
+        <div class="input-group">
+          <input type="text" name="search" class="form-control" placeholder="Search files..." value="{{ search_query }}">
+          <button class="btn btn-custom" type="submit"><i class="fas fa-search"></i> Search</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- File Upload Form -->
+    <div class="card animate__animated animate__fadeInUp">
+      <div class="card-header">
+        <h5>Upload File</h5>
+      </div>
+      <div class="card-body">
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="file" class="form-label">Choose a file to upload</label>
+            <input type="file" name="file" id="file" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-custom w-100">Upload File</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Files List -->
+    <div class="card animate__animated animate__fadeInUp">
+      <div class="card-header">
+        <h5>Uploaded Files</h5>
+      </div>
+      <div class="card-body">
+        {% if files %}
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Size (bytes)</th>
+                <th>Uploader</th>
+                <th>Upload Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for file in files %}
+              <tr>
+                <td>{{ file.name }}</td>
+                <td>{{ file.size }}</td>
+                <td>{{ file.uploader }}</td>
+                <td>{{ file.upload_time }}</td>
+                <td>
+                  <a href="{{ url_for('download', filename=file.name) }}" class="btn btn-success btn-sm">Download</a>
+                  <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-filename="{{ file.name }}">Delete</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-center">No files uploaded yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="deleteForm" method="post">
+          <div class="modal-body">
+            Are you sure you want to delete <strong id="fileToDelete"></strong>?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 FileShare Pro. Crafted with inspiration.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- particles.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    // Initialize particles.js in the hero section
+    particlesJS("particles-js", {
+      "particles": {
+        "number": {
+          "value": 50,
+          "density": {
+            "enable": true,
+            "value_area": 800
+          }
+        },
+        "color": {
+          "value": "#ffffff"
+        },
+        "shape": {
+          "type": "circle",
+          "stroke": {
+            "width": 0,
+            "color": "#000000"
+          },
+          "polygon": {
+            "nb_sides": 5
+          }
+        },
+        "opacity": {
+          "value": 0.5,
+          "random": false,
+          "anim": {
+            "enable": false
+          }
+        },
+        "size": {
+          "value": 3,
+          "random": true,
+          "anim": {
+            "enable": false
+          }
+        },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff",
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 2,
+          "direction": "none",
+          "random": false,
+          "straight": false,
+          "out_mode": "out",
+          "bounce": false
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": {
+            "enable": true,
+            "mode": "grab"
+          },
+          "onclick": {
+            "enable": true,
+            "mode": "push"
+          },
+          "resize": true
+        },
+        "modes": {
+          "grab": {
+            "distance": 140,
+            "line_linked": {
+              "opacity": 1
+            }
+          },
+          "bubble": {
+            "distance": 400,
+            "size": 40,
+            "duration": 2,
+            "opacity": 8,
+            "speed": 3
+          },
+          "repulse": {
+            "distance": 200,
+            "duration": 0.4
+          },
+          "push": {
+            "particles_nb": 4
+          },
+          "remove": {
+            "particles_nb": 2
+          }
+        }
+      },
+      "retina_detect": true
+    });
+
+    // Configure delete modal action on show event
+    var deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var filename = button.getAttribute('data-bs-filename');
+      var modalTitle = deleteModal.querySelector('#fileToDelete');
+      var deleteForm = deleteModal.querySelector('#deleteForm');
+      modalTitle.textContent = filename;
+      deleteForm.setAttribute('action', '/delete/' + encodeURIComponent(filename));
+    });
+  </script>
+</body>
+</html>

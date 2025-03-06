@@ -1,0 +1,14 @@
+file-sharing-server/
+├── app.py
+├── Dockerfile
+├── users.py
+├── templates/
+│   ├── error.html
+│   ├── login.html
+│   ├── index.html
+│   ├── register.html
+│   └── shared/
+├── venv/
+│   └── (Virtual environment for dependencies)
+├── shared/
+│   └── (Shared resources or files)
